@@ -1,0 +1,17 @@
+name: chatbot_
+channels:
+  - defaults
+dependencies:
+  - pip=25.3
+  - python=3.13
+  - numpy
+  - pip:
+      - tenacity
+      - langchain
+      - openai
+      - langchain-openai
+      - neo4j
+      - streamlit
+      - langchainhub
+      - langchain-neo4j
+      - langchain_google_genai
