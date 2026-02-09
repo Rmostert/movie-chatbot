@@ -1,18 +1,14 @@
 from llm import llm, embeddings
 from graph import graph
-
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate,MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
-
 from langchain.tools import tool
-
-from langchain_neo4j import Neo4jChatMessageHistory, Neo4jVector, GraphCypherQAChain
-
+from langchain_neo4j import Neo4jVector, GraphCypherQAChain
 from langchain.agents import create_agent
 from langgraph.checkpoint.memory import InMemorySaver
-
 from utils import get_session_id
+
 
 neo4jvector = Neo4jVector.from_existing_index(
     embeddings,                              
@@ -164,9 +160,6 @@ def movie_chat(input: str) -> str:
     return chain.invoke({"input": input})
 
 
-def get_memory(session_id):
-    return Neo4jChatMessageHistory(session_id=session_id, graph=graph)
-
 agent_instructions = """
 You are a movie expert providing information about movies.
 Be as helpful as possible and return as much information as possible.
@@ -208,6 +201,8 @@ chat_agent = create_agent(
     checkpointer=InMemorySaver(),
     debug=True
 )
+
+
 
 def generate_response(user_input):
 

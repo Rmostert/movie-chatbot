@@ -8,7 +8,7 @@ st.set_page_config("Ebert", page_icon=":movie_camera:")
 # Set up Session State
 if "messages" not in st.session_state:
     st.session_state.messages = [
-        {"role": "assistant", "content": "Hi, I'm the GraphAcademy Chatbot!  How can I help you?"},
+        {"role": "assistant", "content": "Hi, I'm your Movie Fundi Chatbot!  How can I help you?"},
     ]
 
 # Submit handler
@@ -22,7 +22,6 @@ def handle_submit(message):
 
     # Handle the response
     with st.spinner('Thinking...'):
-        # # TODO: Replace this with a call to your LLM
         reponse = generate_response(message)
         write_message('assistant', reponse)
 
