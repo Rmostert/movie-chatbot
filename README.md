@@ -77,13 +77,10 @@ Click Backup & Restore in your Aura instance
 
 ![alt text](screenshots/backup_from_dump.png)
 
-
-Aura Instances page
 Upload the .dump file
 
 ![alt text](screenshots/backup_from_dump_2.png)
 
-Backup and restore tab in Aura Instances page
 After the import completes, you’ll have the same dataset available in your own cloud instance.
 
 Add the following secrets to your secrets.toml file:
