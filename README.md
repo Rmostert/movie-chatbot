@@ -59,52 +59,28 @@ GEMINI_MODEL = 'gemini-3-flash-preview'
 
 ### Create a Neo4j cloud instance. 
 
-Neo4j Aura is Neo4j’s fully managed cloud service.
-
-You can run the GDS plugin on a free Aura Instance right out of the box—no payment or card details needed.
-
-Choose Aura if you:
-
-Want to access your database from anywhere
-
-Prefer not to install software locally
-
-Have limited local storage or computing resources
-
-Want automatic backups and updates
-
-Setting up Neo4j Aura:
-
 Navigate to AuraDB
 
 Click **Start free** to create an account
 
 ![alt text](screenshots/Neo4j-startpage.png)
 
-Neo4j Aura signup page with Start Free button highlighted
+Follow the signup flow and select a free instance
 
 ![alt text](screenshots/aura_signup_free_gds.png)
 
-Follow the signup flow and select a free instance
-
-Neo4j signup
-You can destroy and spin up as many free instances as you like. Once you’re finished with this course, you can easily import your own data instead of the demo dataset.
-
 To load the movie recommendations dataset:
 
-Download this .dump file
+Download [this .dump file](https://github.com/neo4j-graph-examples/recommendations/blob/main/data/recommendations-50.dump)
 
 Click Backup & Restore in your Aura instance
 
 ![alt text](screenshots/backup_from_dump.png)
 
-
-Aura Instances page
 Upload the .dump file
 
 ![alt text](screenshots/backup_from_dump_2.png)
 
-Backup and restore tab in Aura Instances page
 After the import completes, you’ll have the same dataset available in your own cloud instance.
 
 Add the following secrets to your secrets.toml file:
@@ -147,7 +123,7 @@ OPTIONS {indexConfig: {
 All set!
 
 Now you can start the bot by runnning:
-`streamlit run bot.py`
+`streamlit run bot.py
 
 
 
