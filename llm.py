@@ -4,10 +4,6 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 
 
 # Create the LLM
-#llm = ChatOpenAI(
-#	openai_api_key= st.secrets['OPENAI_API_KEY'],
-#	model = st.secrets["OPENAI_MODEL"],
-#	)
 
 llm = ChatGoogleGenerativeAI(
 	api_key= st.secrets['GOOGLE_API_KEY'],
