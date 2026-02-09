@@ -117,17 +117,9 @@ OPTIONS {indexConfig: {
 `vector.dimensions`: 1536,
 `vector.similarity_function`: 'cosine'
 }};
-
 ```
 
 All set!
 
 Now you can start the bot by runnning:
-`streamlit run bot.py
-
-
-
-
-
-
-
+`streamlit run bot.py`
