@@ -101,7 +101,7 @@ Run the following script
 This will create a csv file of movie ids and plot embeddings.
 I've uploaded this file to an AWS S3 bucket and created a sharable link. This is a workaround to quickly import and link these embeddings in Neo4j.
 
-Run the following script in the Query 
+Run the following script in the Neo4J Aura Query editor:
 
 ```
 LOAD CSV WITH HEADERS
@@ -117,6 +117,41 @@ OPTIONS {indexConfig: {
 `vector.dimensions`: 1536,
 `vector.similarity_function`: 'cosine'
 }};
+```
+
+### Create similarities
+
+Run the following script in the Neo4J Aura Query editor:
+
+```
+MATCH (u:User)-[r:RATED]->(m:Movie)
+WITH gds.graph.project(
+'user-movie-ratings',
+u,
+m,
+{
+sourceNodeLabels: labels(u),
+targetNodeLabels: labels(m),
+relationshipType: type(r),
+relationshipProperties: r { .rating },
+},
+{
+memory:'8GB'
+}
+) AS g
+RETURN g.graphName AS graph, g.nodeCount AS nodes, g.relationshipCount AS rels;
+
+
+CALL gds.nodeSimilarity.write(
+'user-movie-ratings',
+{
+writeRelationshipType: 'SIMILARITY',
+writeProperty: 'similarity_score',
+topK: 10,
+similarityMetric: 'COSINE'
+}
+)
+YIELD nodesCompared, relationshipsWritten
 ```
 
 All set!
