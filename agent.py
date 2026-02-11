@@ -3,11 +3,12 @@ from graph import graph
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate,MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
-from langchain.tools import tool
+from langchain.tools import tool, ToolRuntime
 from langchain_neo4j import Neo4jVector, GraphCypherQAChain
 from langchain.agents import create_agent
 from langgraph.checkpoint.memory import InMemorySaver
 from utils import get_session_id
+from dataclasses import dataclass
 
 
 neo4jvector = Neo4jVector.from_existing_index(
@@ -31,6 +32,9 @@ neo4jvector = Neo4jVector.from_existing_index(
     """
     )
 
+@dataclass
+class UserContext:
+    user_id: str
 
 @tool("MoviePlotSearch")
 def get_movie_plot(input: str) -> str:
@@ -73,7 +77,7 @@ def get_movie_plot(input: str) -> str:
 @tool("MovieInformation")
 def cypher_qa(input: str) -> str:
 
-    """Provide information about movie questions using Cypher"""
+    """Provide information about specific movie questions using Cypher. Not to be used for movie recommendations"""
 
     CYPHER_GENERATION_TEMPLATE = """
     You are an expert Neo4j Developer translating user questions into Cypher to answer questions about movies and provide recommendations.
@@ -159,6 +163,55 @@ def movie_chat(input: str) -> str:
     # You must call .invoke() with the required input dictionary
     return chain.invoke({"input": input})
 
+@tool("MovieRecommendations")
+def recommendations(runtime: ToolRuntime[UserContext]) -> str:
+    """
+    To be used when a user asks for movie recommendations. 
+    Returns a natural language list of recommended movies based on collaborative filtering.
+    """
+
+    user_id = runtime.context.user_id
+
+    # We use a simpler prompt because GraphCypherQAChain handles the schema mapping for us
+    CYPHER_GENERATION_TEMPLATE = """
+    Task: Generate a Cypher statement to recommend movies for a specific user.
+    User ID to use: {user_id} as a string value
+    
+    Schema:
+    ```
+    MATCH (u:User {{userId: user_id}})-[s:SIMILARITY]->(peer:User)-[r:RATED]->(m:Movie)
+    WHERE NOT (u)-[:RATED]->(m)
+    RETURN m.title, sum(r.rating * s.similarity_score) AS recommendationScore
+    ORDER BY recommendationScore DESC
+    LIMIT 5
+    ``
+
+    Instructions:
+    Find similar users based on movie ratings using Cosine Similarity.
+    Return only movies the user hasn't seen yet.
+    
+    Question: {question}
+    """
+
+    cypher_prompt = PromptTemplate(
+        template=CYPHER_GENERATION_TEMPLATE, 
+        input_variables=["schema", "question"],
+        partial_variables={"user_id": user_id} # Inject the user_id directly
+    )
+
+    chain = GraphCypherQAChain.from_llm(
+        llm=llm,
+        graph=graph,
+        verbose=True,
+        cypher_prompt=cypher_prompt,
+        allow_dangerous_requests=True
+    )
+
+    # Pass the actual user intent/question to the chain
+    return chain.invoke({"query": f"Recommend movies for user {user_id}"})
+
+
+
 
 agent_instructions = """
 You are a movie expert providing information about movies.
@@ -196,8 +249,9 @@ New input: {input}
 
 chat_agent = create_agent(
     llm,
-    tools = [get_movie_plot,cypher_qa,movie_chat],
+    tools = [get_movie_plot,cypher_qa,movie_chat, recommendations],
     system_prompt=agent_instructions,
+    context_schema=UserContext,
     checkpointer=InMemorySaver(),
     debug=True
 )
@@ -213,7 +267,8 @@ def generate_response(user_input):
 
     response = chat_agent.invoke(
         {"messages": [{"role": "user", "content": user_input}]},
-        {"configurable": {"thread_id": get_session_id()}},)
+        {"configurable": {"thread_id": get_session_id()}},
+        context=UserContext(user_id="333"))
 
     return response['messages'][-1].content[0]['text']
 
