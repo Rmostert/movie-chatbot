@@ -8,6 +8,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 llm = ChatGoogleGenerativeAI(
 	api_key= st.secrets['GOOGLE_API_KEY'],
 	model = st.secrets["GEMINI_MODEL"],
+	temperature=0.2
 	)
 
 # Create the Embedding model
